@@ -63,12 +63,10 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             return;
         Article currentNewsObject=newsArtictes.get(position);
         holder.title.setText(currentNewsObject.getTitle());
-        try {
+
             String conText= DateUtil.GetLocalDate(currentNewsObject.getPublishedAt());
             holder.date.setText(conText);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
 
         holder.desc.setText(currentNewsObject.getDescription());
         holder.cardView.setOnClickListener(new View.OnClickListener() {

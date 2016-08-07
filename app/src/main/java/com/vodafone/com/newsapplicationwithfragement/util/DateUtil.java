@@ -13,15 +13,22 @@ import java.util.TimeZone;
 
 public class DateUtil {
 
-    public static String GetLocalDate(String utcDate) throws ParseException {
-        Locale.setDefault(Locale.US);
+    public static String GetLocalDate(String inputDate)  {
+        if(inputDate == null)
+            return null;
+        try {
+            String inputDateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+            String outputDateFormat = "EEE, d MMM yyyy KK:mm";
 
-        SimpleDateFormat sourceDateFormat = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ss'Z'");
-        Date sourceDate = sourceDateFormat.parse("2016-08-06T05:04:01Z");
+            SimpleDateFormat inputFormat = new SimpleDateFormat(inputDateFormat);
+            SimpleDateFormat outputFormat = new SimpleDateFormat(outputDateFormat);
 
-        SimpleDateFormat targetFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
-        String targetString = targetFormat.format(sourceDate);
-        return targetString;
+            Date date = inputFormat.parse(inputDate);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return inputDate;
 
     }
 }

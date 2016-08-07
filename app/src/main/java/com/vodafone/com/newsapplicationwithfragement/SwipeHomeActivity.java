@@ -141,7 +141,6 @@ public class SwipeHomeActivity extends AppCompatActivity {
 
     public class NetworkAsyncTask extends AsyncTask<Void,Void,NewsApiSourceReference>
     {
-
         @Override
         protected NewsApiSourceReference doInBackground(Void... voids) {
             Call<NewsApiSourceReference> sourceReference= NewsApiServiceHandler.getNewsAPI().getSource();
@@ -155,8 +154,6 @@ public class SwipeHomeActivity extends AppCompatActivity {
             }
             return  null;
         }
-
-
 
         @Override
         protected void onPostExecute(NewsApiSourceReference aBoolean) {
@@ -194,8 +191,6 @@ public class SwipeHomeActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(position);
             }
         }
-
-
 
     }
 
