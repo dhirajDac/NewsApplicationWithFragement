@@ -1,6 +1,7 @@
 package com.vodafone.com.newsapplicationwithfragement;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,12 +18,15 @@ import com.vodafone.com.newsapplicationwithfragement.objects.CommonUsage;
 import com.vodafone.com.newsapplicationwithfragement.objects.NewsApiSourceReference;
 import com.vodafone.com.newsapplicationwithfragement.objects.Source;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+
 
 public class SwipeHomeActivity extends AppCompatActivity {
 
@@ -32,9 +36,22 @@ public class SwipeHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_swipe_home);
         viewPager=(ViewPager)findViewById(R.id.activity_swipe_view_pager);
+        NetworkAsyncTask myTask=new NetworkAsyncTask();
+        myTask.execute();
+     /*   Call<NewsApiSourceReference> sourceReference= NewsApiServiceHandler.getNewsAPI().getSource();
+        try {
+            Response<NewsApiSourceReference> response=  sourceReference.execute();
+            List<Source> allSource=response.body().getSources();
+            CommonUsage.setAllNewsSources(allSource);
+            ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), CommonUsage.getAllNewsSources());
+            viewPager.setAdapter(viewPagerAdapter);
+            viewPager.setOffscreenPageLimit(8);
 
-        Call<NewsApiSourceReference> sourceReference= NewsApiServiceHandler.getNewsAPI().getSource();
-        sourceReference.enqueue(new Callback<NewsApiSourceReference>() {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+      /*  sourceReference.enqueue(new Callback<NewsApiSourceReference>() {
             @Override
             public void onResponse(Call<NewsApiSourceReference> call, Response<NewsApiSourceReference> response) {
                 List<Source> allSource = response.body().getSources();
@@ -60,7 +77,7 @@ public class SwipeHomeActivity extends AppCompatActivity {
 
                     }
                 });
-                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), allSource);
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), CommonUsage.getAllNewsSources());
                 viewPager.setAdapter(viewPagerAdapter);
                 viewPager.setOffscreenPageLimit(8);
 
@@ -78,7 +95,7 @@ public class SwipeHomeActivity extends AppCompatActivity {
             public void onFailure(Call<NewsApiSourceReference> call, Throwable t) {
                 Toast.makeText(SwipeHomeActivity.this, "Error in Swip HomeAPICall", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
 
 
 
@@ -121,4 +138,67 @@ public class SwipeHomeActivity extends AppCompatActivity {
         editor.commit();
     }
 
+
+    public class NetworkAsyncTask extends AsyncTask<Void,Void,NewsApiSourceReference>
+    {
+
+        @Override
+        protected NewsApiSourceReference doInBackground(Void... voids) {
+            Call<NewsApiSourceReference> sourceReference= NewsApiServiceHandler.getNewsAPI().getSource();
+            Response<NewsApiSourceReference> response;
+            try {
+                response = sourceReference.execute();
+                return  response.body();
+            }
+           catch (IOException e) {
+                e.printStackTrace();
+            }
+            return  null;
+        }
+
+
+
+        @Override
+        protected void onPostExecute(NewsApiSourceReference aBoolean) {
+            List<Source> allSource = aBoolean.getSources();
+            CommonUsage.setAllNewsSources(allSource);
+
+            viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    //  Log.i(TAG,"OnPageScroll "+position);
+
+                }
+
+                @Override
+                public void onPageSelected(int position) {
+                    // Log.i(TAG,"OnPageSelected "+position);
+                    saveInPreference(position);
+
+                }
+
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    // Log.i(TAG,"OnPageScrollStateChanged "+position);
+
+                }
+            });
+            ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), CommonUsage.getAllNewsSources());
+            viewPager.setAdapter(viewPagerAdapter);
+            viewPager.setOffscreenPageLimit(8);
+
+            SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(SwipeHomeActivity.this);
+            int position=sharedPreferences.getInt(KEY_POSITION,DEFAULT_POSITION);
+            if(position!=0)
+            {
+                viewPager.setCurrentItem(position);
+            }
+        }
+
+
+
+    }
+
 }
+
+
